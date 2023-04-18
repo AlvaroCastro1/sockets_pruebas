@@ -15,7 +15,7 @@ RUN apt-get update && \
 ENV JAVA_HOME /usr/lib/jvm/java-19-openjdk-amd64/
 RUN export JAVA_HOME
 
-COPY ./SocketChat/ /home/SocketChat
+COPY ./src/ /home/chat
 
 COPY ./exec_up.sh .
 RUN chmod a+x exec_up.sh

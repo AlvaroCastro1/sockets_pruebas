@@ -1,3 +1,3 @@
-cd /home/SocketChat/src
-javac chat/servidor.java
-java chat/servidor.java
+cd /home/chat
+javac servidor.java
+java servidor
