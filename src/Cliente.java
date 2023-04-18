@@ -4,7 +4,7 @@ import java.net.*;
 public class Cliente {
     public static void main(String[] args) {
         try {
-            Socket socket = new Socket("192.168.56.1", 5000); // Creamos el socket del cliente y nos conectamos al servidor en el puerto 5000
+            Socket socket = new Socket("localhost", 5000); // Creamos el socket del cliente y nos conectamos al servidor en el puerto 5000
             System.out.println("Conectado al servidor");
 
             // Creamos un hilo para manejar la lectura de mensajes del servidor
