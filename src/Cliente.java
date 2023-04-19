@@ -59,6 +59,9 @@ class ClienteHilo extends Thread{
         //siempre esperar un mensaje de este cliente
         while (true) {
             try {
+
+                System.out.println(in.readUTF());
+                
                 System.out.println(" Cual es tu mensaje?");
                 out.writeUTF(leer.nextLine());
                 System.out.println("Cual es tu Destino?");
