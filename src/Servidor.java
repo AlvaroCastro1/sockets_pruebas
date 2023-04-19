@@ -1,65 +1,86 @@
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Servidor {
-    public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5000);
 
-        System.out.println("Servidor iniciado. Esperando conexiones...");
+    public static void main(String[] args) {
 
-        while (true) {
-            // Esperamos a que un cliente se conecte
-            Socket clientSocket = null;
+        try {
+            ServerSocket socket_servidor = new ServerSocket(5000);
+            Socket socket_cliente;
 
-            try {
-                clientSocket = serverSocket.accept();
-                System.out.println("Cliente conectado desde " + clientSocket.getInetAddress().getHostName());
+            System.out.println("Servidor iniciado");
+            while (true) {
 
-                // Creamos un hilo para atender al cliente
-                Thread t = new Thread(new mensaje(clientSocket));
-                t.start();
-            } catch (IOException e) {
-                System.err.println("Error aceptando la conexión");
+                // Espero la conexion del cliente
+                socket_cliente = socket_servidor.accept();
+
+                DataInputStream in = new DataInputStream(socket_cliente.getInputStream());
+                DataOutputStream out = new DataOutputStream(socket_cliente.getOutputStream());
+
+                // Pido al cliente el nombre al cliente
+                out.writeUTF("Servidor: Cual es tu nombre?");
+                String nombreCliente = in.readUTF();
+
+                System.out.println("Creada la conexion con el cliente " + nombreCliente);
+
+                // Inicio el hilo
+                ServidorHilo hilo = new ServidorHilo(in, out, nombreCliente,
+                        socket_cliente.getInetAddress().getHostName());
+                hilo.start();
             }
+
+        } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
+
 }
 
-// Clase para manejar cada conexión de forma individual en un hilo separado
-class mensaje implements Runnable {
-    private Socket socket_cliente;
+class ServidorHilo extends Thread {
 
-    public mensaje(Socket socket) {
-        this.socket_cliente = socket;
+    private DataInputStream in;
+    private DataOutputStream out;
+    private String nombreCliente;
+    private String host;
+
+    public ServidorHilo(DataInputStream in, DataOutputStream out, String nombreCliente, String host) {
+        this.in = in;
+        this.out = out;
+        this.nombreCliente = nombreCliente;
+        this.host = host;
     }
 
+    @Override
     public void run() {
-        try {
-            // Creamos los streams de entrada y salida para comunicarnos con el cliente
-            PrintWriter writter = new PrintWriter(socket_cliente.getOutputStream(), true);
-            BufferedReader leer = new BufferedReader(new InputStreamReader(socket_cliente.getInputStream()));
 
-            // Leemos los mensajes del cliente y los imprimimos en la consola
-            String mensaje_del_cliente;
+        while (true) {
+            try {
+                System.out.println("------"+nombreCliente);
+                Thread.sleep(100);
+                String mensaje = in.readUTF();
+                Thread.sleep(100);
+                String destino_host = in.readUTF();
+                Thread.sleep(100);
+                System.out.println("\tPara: " + destino_host);
+                // escribir en el cliente
+                //Socket sc = new Socket(destino_host, 5000);
+                //DataOutputStream out_dest = new DataOutputStream(sc.getOutputStream());
+                //out_dest.writeUTF("De " +nombreCliente+": "+mensaje);
 
-            while ((mensaje_del_cliente = leer.readLine()) != null) {
-                System.out.println("Cliente: " + mensaje_del_cliente);
 
-                // Le respondemos al cliente con el mismo mensaje que nos envió
-                writter.println(mensaje_del_cliente);
-
-                // Si el cliente envía el mensaje "adios", cerramos la conexión
-                if (mensaje_del_cliente.equals("adios")) {
-                    break;
-                }
+            } catch (IOException e) {
+                System.out.println(e);
+            } catch (InterruptedException e) {
+                System.out.println(e);
             }
-
-            // Cerramos los streams y el socket del cliente
-            writter.close();
-            leer.close();
-            socket_cliente.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
+
 }

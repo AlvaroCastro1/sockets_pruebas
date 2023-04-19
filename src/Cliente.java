@@ -1,71 +1,71 @@
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Cliente {
+
     public static void main(String[] args) {
+        
         try {
-            Socket socket = new Socket("localhost", 5000); // Creamos el socket del cliente y nos conectamos al servidor en el puerto 5000
-            System.out.println("Conectado al servidor");
-
-            // Creamos un hilo para manejar la lectura de mensajes del servidor
-            Thread inputThread = new Thread(new InputHandler(socket));
-            inputThread.start();
-
-            // Creamos un stream de salida para enviar mensajes al servidor
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
-            // Leemos los mensajes del usuario y los enviamos al servidor
-            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-            String userInputLine;
-
-            while ((userInputLine = userInput.readLine()) != null) {
-                out.println(userInputLine);
-
-                // Si el usuario envía el mensaje "adios", cerramos la conexión
-                if (userInputLine.equals("adios")) {
-                    break;
-                }
-            }
-
-            // Cerramos los streams y el socket del cliente
-            out.close();
-            userInput.close();
-            socket.close();
-        } catch (IOException e) {
-            System.err.println("Error en el cliente: " + e.getMessage());
+            Scanner sn = new Scanner(System.in);
+            
+            Socket sc = new Socket("192.168.1.100", 5000);
+            
+            DataInputStream in = new DataInputStream(sc.getInputStream());
+            DataOutputStream out = new DataOutputStream(sc.getOutputStream());
+            
+            // Leer mensaje del servidor
+            String mensaje = in.readUTF();
+            System.out.println(mensaje);
+            
+            // Escribe el nombre y se lo manda al servidor
+            String nombre = sn.next();
+            out.writeUTF(nombre);
+            
+            // ejecutamos el hilo
+            ClienteHilo hilo = new ClienteHilo(in, out);
+            hilo.start();
+            hilo.join();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        
+        
     }
+    
 }
 
-class InputHandler implements Runnable {
-    private Socket socket;
-    private BufferedReader in;
+class ClienteHilo extends Thread{
+    
+    private DataInputStream in;
+    private DataOutputStream out;
+    Scanner leer = new Scanner(System.in);
 
-    public InputHandler(Socket socket) {
-        this.socket = socket;
+    public ClienteHilo(DataInputStream in, DataOutputStream out) {
+        this.in = in;
+        this.out = out;
     }
-
-    public void run() {
-        try {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            // Leemos los mensajes del servidor y los imprimimos en la consola
-            String serverInput;
-
-            while ((serverInput = in.readLine()) != null) {
-                System.out.println(serverInput);
-
-                // Si el servidor envía el mensaje "adios", cerramos la conexión
-                if (serverInput.equals("adios")) {
-                    break;
-                }
+    
+    @Override
+    public void run(){
+        //siempre esperar un mensaje de este cliente
+        while (true) {
+            try {
+                System.out.println(" Cual es tu mensaje?");
+                out.writeUTF(leer.nextLine());
+                System.out.println("Cual es tu Destino?");
+                out.writeUTF(leer.nextLine());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            // Cerramos el stream de entrada del servidor y el socket del cliente
-            in.close();
-            socket.close();
-        } catch (IOException e) {
-            System.err.println("Error en la lectura del servidor: " + e.getMessage());
         }
     }
 }
