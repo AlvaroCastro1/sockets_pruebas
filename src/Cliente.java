@@ -13,7 +13,7 @@ public class Cliente {
         try {
             Scanner sn = new Scanner(System.in);
             
-            Socket sc = new Socket("192.168.1.100", 5000);
+            Socket sc = new Socket("192.168.1.102", 5000);
             
             DataInputStream in = new DataInputStream(sc.getInputStream());
             DataOutputStream out = new DataOutputStream(sc.getOutputStream());

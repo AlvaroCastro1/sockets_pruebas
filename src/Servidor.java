@@ -3,15 +3,23 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Servidor {
 
+
+    public static Map<Socket, String> map = new HashMap<Socket,String>();
+
+
+
     public static void main(String[] args) {
 
         try {
             ServerSocket socket_servidor = new ServerSocket(5000);
+
             Socket socket_cliente;
 
             System.out.println("Servidor iniciado");
@@ -30,9 +38,12 @@ public class Servidor {
                 System.out.println("Creada la conexion con el cliente " + nombreCliente);
 
                 // Inicio el hilo
+                map.put(socket_cliente, nombreCliente);
                 ServidorHilo hilo = new ServidorHilo(in, out, nombreCliente,
-                        socket_cliente.getInetAddress().getHostName());
+                                                     socket_cliente.getInetAddress().getHostName());
+
                 hilo.start();
+                
             }
 
         } catch (IOException ex) {
@@ -48,6 +59,8 @@ class ServidorHilo extends Thread {
     private DataInputStream in;
     private DataOutputStream out;
     private String nombreCliente;
+    //socket cliente
+    
     private String host;
 
     public ServidorHilo(DataInputStream in, DataOutputStream out, String nombreCliente, String host) {
