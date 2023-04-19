@@ -70,9 +70,9 @@ class ServidorHilo extends Thread {
                 Thread.sleep(100);
                 System.out.println("\tPara: " + destino_host);
                 // escribir en el cliente
-                //Socket sc = new Socket(destino_host, 5000);
-                //DataOutputStream out_dest = new DataOutputStream(sc.getOutputStream());
-                //out_dest.writeUTF("De " +nombreCliente+": "+mensaje);
+                Socket sc = new Socket(destino_host, 5000);
+                DataOutputStream out_dest = new DataOutputStream(sc.getOutputStream());
+                out_dest.writeUTF("De " +nombreCliente+": "+mensaje);
 
 
             } catch (IOException e) {
