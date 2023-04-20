@@ -1,6 +1,7 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -74,6 +75,8 @@ class ServidorHilo extends Thread {
     public void run() {
 
         while (true) {
+
+            paquete recibido;
             try {
                 System.out.println("------"+nombreCliente);
                 Thread.sleep(100);
@@ -83,9 +86,20 @@ class ServidorHilo extends Thread {
                 Thread.sleep(100);
                 System.out.println("\tPara: " + destino_host);
                 // escribir en el cliente
-                Socket sc = new Socket(destino_host, 5000);
-                DataOutputStream out_dest = new DataOutputStream(sc.getOutputStream());
-                out_dest.writeUTF("De " +nombreCliente+": "+mensaje);
+                // Socket sc = new Socket(destino_host, 5000);
+                // DataOutputStream out_dest = new DataOutputStream(sc.getOutputStream());
+                // out_dest.writeUTF("De " +nombreCliente+": "+mensaje);
+
+                ObjectInputStream paqueteServidor= new ObjectInputStream(sock.getInputStream()); 
+                recibido= (paquete)paqueteServidor.readObject();
+                
+                Socket envio = new Socket(recibido.getDireccion(),4242);
+                ObjectOutputStream paqueteReenvio= new ObjectOutputStream(envio.getOutputStream());
+                
+                paqueteReenvio.writeObject(recibido);
+                envio.close();
+                
+                sock.close();
 
 
             } catch (IOException e) {

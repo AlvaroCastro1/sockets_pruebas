@@ -1,6 +1,3 @@
-
-package chat;
-
 import java.io.Serializable;
 
 
@@ -35,6 +32,11 @@ public class paquete implements Serializable {
 
     public void setMensaje(String mensaje) {
         this.mensaje = mensaje;
+    }
+
+    public String toString() {
+        String cad = getNombre() + "envió dice: "+getMensaje();
+        return cad;
     }
     
 }
