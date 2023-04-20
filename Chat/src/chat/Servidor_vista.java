@@ -132,6 +132,9 @@ public class Servidor_vista extends javax.swing.JFrame implements Runnable {
                 ObjectOutputStream out = new ObjectOutputStream(ens.getOutputStream());
                 out.writeObject(pack);
                 s.close();
+                ens.close();
+                in.close();
+                out.close();
                 
 
             }

@@ -126,6 +126,7 @@ public class cliente extends javax.swing.JFrame implements Runnable {
             ObjectOutputStream out = new ObjectOutputStream(cli.getOutputStream());
             out.writeObject(pack);
             cli.close();
+            out.close();
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -196,6 +197,7 @@ public class cliente extends javax.swing.JFrame implements Runnable {
                 so.close();
             }
         } catch (Exception e) {
+            System.out.println(e);
         }
     }
 }
